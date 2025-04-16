@@ -7,7 +7,7 @@ Redout is a lightweight Chrome extension that detects and partially blocks poten
 - Scans all `<video>` elements on web pages.
 - Tracks brightness changes frame-by-frame using grayscale analysis.
 - Detects repeated large brightness deltas (potential flashes).
-- Displays a red fullscreen overlay with a warning when flashing is detected.
+- Displays a deep blue fullscreen overlay with a warning when flashing is detected.
 - Automatically fades the overlay after a brief cooldown period with no flashing.
 
 ## 🧠 Why It Works (Science Behind the Filter)
