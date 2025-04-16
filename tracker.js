@@ -21,7 +21,7 @@ var FlashTracker = function() {
   
       console.log("avg brightness:", avgBrightness, "delta:", delta);
   
-      if (delta > 180) {
+      if (delta > 100) {
         this.flashCount++;
       } else if (this.flashCount > 0) {
         this.flashCount--; // cool down instead of reset
