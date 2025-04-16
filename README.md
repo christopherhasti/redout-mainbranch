@@ -27,11 +27,6 @@ Redout is a lightweight Chrome extension that detects and blocks potentially har
 
 redout/ ├── manifest.json ├── content.js ├── tracker.js ├── tracking-min.js ├── redout.png └── README.md
 
-## 🎨 Icon
-
-Current icon: `redout.png` (16x16)  
-Note: For best results, consider adding additional resolutions (48x48, 128x128) later.
-
 ## 📄 License
 
 MIT — free to use, modify, and distribute.  
