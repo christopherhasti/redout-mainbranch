@@ -36,7 +36,7 @@
                 clearTimeout(flashTimeout);
                 flashTimeout = setTimeout(() => {
                     overlay.style.display = 'none';
-                }, 10000); // show overlay for 1 second after last flash
+                }, 100);
             }
         });
 

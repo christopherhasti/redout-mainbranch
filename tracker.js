@@ -25,14 +25,10 @@ var FlashTracker = function() {
         this.flashCount++;
       } else {
         this.flashCount = 0;
-      }
-      
-      this.emit('track', {
-        flashing: this.flashCount >= 1 // was 2 or 3
-      });      
+      }    
   
       this.emit('track', {
-        flashing: this.flashCount >= 2
+        flashing: this.flashCount >= 0
       });
     };
   };
