@@ -1,14 +1,33 @@
 {
-    "manifest_version": 3,
-    "name": "Flashing Image Blocker",
-    "version": "1.0",
-    "description": "Detects flashing content and blocks it",
-    "permissions": ["scripting"],
-    "content_scripts": [
-      {
-        "matches": ["<all_urls>"],
-        "js": ["tracking-min.js", "tracker.js", "content.js"]
-      }
-    ]
-  }
-  
+  "manifest_version": 3,
+  "name": "Flashing Image Blocker",
+  "version": "1.0",
+  "description": "Detects flashing content and blocks it",
+  "permissions": [
+    "scripting"
+  ],
+  "action": {
+    "default_icon": {
+      "16": "redout.png",
+      "48": "redout.png",
+      "128": "redout.png"
+    }
+  },
+  "icons": {
+    "16": "redout.png",
+    "48": "redout.png",
+    "128": "redout.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "tracking-min.js",
+        "tracker.js",
+        "content.js"
+      ]
+    }
+  ]
+}
