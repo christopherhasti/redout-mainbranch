@@ -30,7 +30,7 @@
         const flashTracker = new FlashTracker();
         let lastFlashTime = 0;
         let flashActive = false;
-        const cooldown = 2000; // 2 seconds after last flash
+        const cooldown = 300;
         let intervalId = null;
 
         const trackerTask = tracking.track(video, flashTracker);
