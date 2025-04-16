@@ -7,11 +7,14 @@
         const overlay = document.createElement('div');
         overlay.id = 'flash-overlay';
         overlay.style.position = 'fixed';
+        overlay.style.transition = 'opacity 0.3s ease';
+        overlay.style.opacity = 0;
+        overlay.style.display = 'block';
         overlay.style.top = 0;
         overlay.style.left = 0;
         overlay.style.width = '100vw';
         overlay.style.height = '100vh';
-        overlay.style.backgroundColor = 'black';
+        overlay.style.backgroundColor = 'rgba(255, 0, 0, 0.75)';
         overlay.style.zIndex = 99999;
         overlay.style.display = 'none';
         overlay.style.justifyContent = 'center';
@@ -32,10 +35,10 @@
 
         flashTracker.on('track', function (event) {
             if (event.flashing) {
-                overlay.style.display = 'block';
+                overlay.style.opacity = 1;
                 clearTimeout(flashTimeout);
                 flashTimeout = setTimeout(() => {
-                    overlay.style.display = 'none';
+                    overlay.style.opacity = 0;
                 }, 100);
             }
         });
