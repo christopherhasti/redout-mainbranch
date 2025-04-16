@@ -21,16 +21,23 @@ var FlashTracker = function() {
   
       console.log("avg brightness:", avgBrightness, "delta:", delta);
   
-      if (delta > 100) { // was 15 or 40
+      if (delta > 180) {
         this.flashCount++;
-      } else {
-        this.flashCount = 0;
-      }    
+      } else if (this.flashCount > 0) {
+        this.flashCount--; // cool down instead of reset
+      }
   
+      const isFlashing = this.flashCount >= 1;
+
+      if (isFlashing) {
+        console.log("🔥 Flash detected!");
+      }
+
       this.emit('track', {
-        flashing: this.flashCount >= 0
+        flashing: isFlashing
       });
     };
   };
   
-tracking.inherits(FlashTracker, tracking.Tracker);  
+  tracking.inherits(FlashTracker, tracking.Tracker);
+  
