@@ -13,7 +13,7 @@
         overlay.style.left = 0;
         overlay.style.width = '100vw';
         overlay.style.height = '100vh';
-        overlay.style.backgroundColor = 'rgba(0, 50, 100, 0.85)';
+        overlay.style.backgroundColor = 'rgba(0, 50, 100, 0.95)';
         overlay.style.zIndex = 99999;
         overlay.style.justifyContent = 'center';
         overlay.style.alignItems = 'center';

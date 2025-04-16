@@ -20,7 +20,7 @@ To counter this, Redout applies a two-part defense:
   The extension uses grayscale brightness tracking to detect dangerous changes in luminance across video frames. If repeated sharp spikes are found, it identifies this as potential flashing.
 
 - **Color & Brightness Suppression:**  
-  When flashing is detected, Redout displays a **deep navy-blue overlay** (`rgba(0, 50, 100, 0.85)`), a carefully chosen color that:
+  When flashing is detected, Redout displays a **deep navy-blue overlay** (`rgba(0, 50, 100, 0.95)`), a carefully chosen color that:
   - **Negates red–orange light** by applying a cool-spectrum contrast.
   - **Reduces screen brightness** to dampen the strobe’s overall intensity.
   
