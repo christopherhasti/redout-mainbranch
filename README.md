@@ -1,6 +1,6 @@
 # 🛑 Redout — Flashing Content Blocker
 
-Redout is a lightweight Chrome extension that detects and blocks potentially harmful flashing video content in real time. It’s designed to help protect users from photosensitive epilepsy triggers by monitoring average frame brightness and overlaying a warning when flashing is detected.
+Redout is a lightweight Chrome extension that detects and partially blocks potentially harmful flashing video content in real time. It’s designed to help protect users from photosensitive epilepsy triggers by monitoring average frame brightness and overlaying a warning when flashing is detected.
 
 ## ⚙️ How It Works
 
@@ -9,6 +9,24 @@ Redout is a lightweight Chrome extension that detects and blocks potentially har
 - Detects repeated large brightness deltas (potential flashes).
 - Displays a red fullscreen overlay with a warning when flashing is detected.
 - Automatically fades the overlay after a brief cooldown period with no flashing.
+
+## 🧠 Why It Works (Science Behind the Filter)
+
+Redout is grounded in research around photosensitive epilepsy and the neurological impact of high-contrast visual stimuli — especially rapid **flashes of light** and **warm wavelengths** like red and orange (580–640 nm on the spectrum). These are some of the most seizure-inducing visual triggers.
+
+To counter this, Redout applies a two-part defense:
+
+- **Frame-by-Frame Detection:**  
+  The extension uses grayscale brightness tracking to detect dangerous changes in luminance across video frames. If repeated sharp spikes are found, it identifies this as potential flashing.
+
+- **Color & Brightness Suppression:**  
+  When flashing is detected, Redout displays a **deep navy-blue overlay** (`rgba(0, 50, 100, 0.85)`), a carefully chosen color that:
+  - **Negates red–orange light** by applying a cool-spectrum contrast.
+  - **Reduces screen brightness** to dampen the strobe’s overall intensity.
+  
+This approach helps neutralize both the **color frequency** and **brightness delta** that commonly trigger seizures.
+
+The result is a safer, more stable visual experience for users with light sensitivity — or anyone who just wants to avoid jarring, high-flash media.
 
 ## 🧰 Built With
 
