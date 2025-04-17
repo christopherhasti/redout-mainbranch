@@ -7,7 +7,7 @@
         const overlay = document.createElement('div');
         overlay.id = 'flash-overlay';
         overlay.style.position = 'fixed';
-        overlay.style.transition = 'opacity 0.3s ease';
+        overlay.style.transition = 'opacity 0.2s ease';
         overlay.style.opacity = 0;
         overlay.style.top = 0;
         overlay.style.left = 0;
@@ -24,13 +24,13 @@
         overlay.style.fontFamily = 'sans-serif';
         overlay.style.pointerEvents = 'none';
         overlay.style.display = 'flex'; // center content
-        overlay.innerText = '⚠️ Flashing Blocked';
+        //overlay.innerText = '⚠️ Flashing Blocked';
         document.body.appendChild(overlay);
 
         const flashTracker = new FlashTracker();
         let lastFlashTime = 0;
         let flashActive = false;
-        const cooldown = 300;
+        const cooldown = 500;
         let intervalId = null;
 
         const trackerTask = tracking.track(video, flashTracker);
@@ -55,7 +55,7 @@
                     flashActive = false;
                     console.log("🕑 Flash timeout — overlay hidden");
                 }
-            }, 250);
+            }, cooldown);
         }
 
         function stopInterval() {

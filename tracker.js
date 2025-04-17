@@ -24,10 +24,10 @@ var FlashTracker = function() {
       if (delta > 90) {
         this.flashCount++;
       } else if (this.flashCount > 0) {
-        this.flashCount--; // cool down instead of reset
+        this.flashCount - 0.25; // cool down instead of reset
       }
   
-      const isFlashing = this.flashCount >= 1;
+      const isFlashing = this.flashCount >= 2;
 
       if (isFlashing) {
         console.log("🔥 Flash detected!");
