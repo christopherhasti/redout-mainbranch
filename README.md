@@ -75,17 +75,29 @@ This approach helps mitigate the risks associated with flashing content, creatin
 
 
 redout/
+
 ├── manifest.json # Extension configuration (V3)
+
 ├── background.js # Service worker (minimal)
+
 ├── popup.html # Popup UI structure
+
 ├── popup.js # Popup UI logic and event handling
+
 ├── settings.js # Class for managing settings & storage
+
 ├── content.js # Content script: finds videos, applies overlay
+
 ├── tracker.js # Flash detection logic using tracking.js
+
 ├── tracking-min.js # REQUIRED: tracking.js library file
+
 ├── styles.css # CSS for popup (potentially mergeable/removable)
+
 ├── overlay.css # CSS specifically for the flash overlay
+
 ├── redout.png # Extension icon (used in manifest)
+
 └── README.md # This file
 
 
