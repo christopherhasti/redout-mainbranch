@@ -24,9 +24,7 @@ Redout is a lightweight Chrome extension that detects and blocks potentially har
 
 ## 🔧 Configuration
 
-Redout's settings can be easily adjusted via the extension popup:
-
-**(Suggestion: Include a screenshot of the popup here if possible)**
+Redout's settings can be easily adjusted via the extension popup
 
 The popup has three tabs:
 
