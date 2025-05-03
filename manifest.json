@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Flashing Image Blocker",
+  "name": "Redout",
   "version": "1.0",
   "description": "Detects flashing content and blocks it with customizable settings",
   "permissions": [
