@@ -1,121 +1,182 @@
-// tracker.js
-
-// Ensure the constructor is defined and does NOT have the event listener
 var FlashTracker = function(settings) {
   // Ensure tracking.js is loaded before this runs
   if (typeof tracking === 'undefined' || typeof tracking.Tracker === 'undefined') {
       console.error("tracking.js or tracking.Tracker not loaded before FlashTracker instantiation");
-      // Handle error appropriately, maybe throw an error or return
-      return;
+      return; // Handle error appropriately
   }
-  tracking.Tracker.call(this); // Call parent constructor
+  try {
+      tracking.Tracker.call(this); // Call parent constructor
+  } catch (e) {
+      console.error("Error calling tracking.Tracker constructor:", e);
+      return; // Cannot proceed if parent constructor fails
+  }
+
 
   // Instance properties
   this.prevBrightness = null;
-  this.flashCount = 0;
-  this.wasFlashingLastFrame = false; // Optional: for refined logging
+  // Store timestamps of detected flash events within the time window
+  this.flashTimestamps = [];
 
-  // Use settings if provided, otherwise use defaults
-  // Make sure the 'settings' object passed in has the 'current' property
+  // Store reference to settings object (critical for accessing enableDebugLogging)
+  // Ensure 'current' exists and provide fallback defaults
   this.settings = settings && settings.current ? settings : {
-    current: {
-      flashThreshold: 90,    // Default threshold
-      flashTriggerCount: 2   // Default trigger count
+    current: { // Fallback defaults if settings object is malformed/missing
+      flashThreshold: 90,
+      flashHzThreshold: 3,
+      enableDebugLogging: false // Include fallback here too
     }
   };
-
-  // !! CRITICAL: Ensure NO document.addEventListener here !!
 };
 
 // Ensure tracking.inherits is called AFTER the constructor definition
 // AND assumes tracking.js is loaded
-if (typeof tracking !== 'undefined' && typeof tracking.inherits === 'function') {
-    tracking.inherits(FlashTracker, tracking.Tracker);
+if (typeof tracking !== 'undefined' && typeof tracking.inherits === 'function' && typeof FlashTracker !== 'undefined') {
+    try {
+        tracking.inherits(FlashTracker, tracking.Tracker);
+    } catch (e) {
+        console.error("Error inheriting FlashTracker from tracking.Tracker:", e);
+    }
 } else {
-    console.error("tracking.js or tracking.inherits not available for FlashTracker");
+    console.error("tracking.js or tracking.inherits or FlashTracker not available for inheritance");
 }
 
 
-// Updated FlashTracker.prototype.track method with detailed logging:
+// --- Hz-Based Detection Logic ---
 FlashTracker.prototype.track = function(pixels, width, height) {
-  if (!pixels || pixels.length === 0) {
-    console.warn("Empty pixels data in FlashTracker");
+  // Basic check for dependencies and state
+  if (!pixels || pixels.length === 0 || !this.settings || !this.settings.current || !this.flashTimestamps) {
+    // Conditional Log: Log missing prerequisites only if debug enabled
+    // if (this.settings?.current?.enableDebugLogging) {
+    //    console.warn("[Tracker] Missing prerequisites:", { pixels: !!pixels, settings: !!this.settings, timestamps: !!this.flashTimestamps });
+    // }
     return;
   }
 
-  let gray = tracking.Image.grayscale(pixels, width, height, true);
-  let totalBrightness = 0;
-  let pixelCount = 0;
+  // --- Brightness Calculation ---
+  let avgBrightness, delta;
+  try {
+      // Ensure grayscale function exists
+      if (typeof tracking.Image === 'undefined' || typeof tracking.Image.grayscale !== 'function') {
+          console.error("[Tracker] tracking.Image.grayscale is not available.");
+          return;
+      }
+      // Use tracking.js's fast grayscale (true flag) if available
+      let gray = tracking.Image.grayscale(pixels, width, height, true);
+      let totalBrightness = 0;
 
-  // Calculate total brightness efficiently
-  for (let i = 0; i < gray.length; i += 4) { // Process only one channel (e.g., R) since it's grayscale
-    totalBrightness += gray[i];
-    pixelCount++;
+      // Check if grayscale conversion returned valid data
+      if (!gray || gray.length === 0) {
+          // Conditional Log
+          // if (this.settings.current.enableDebugLogging) console.warn("[Tracker] Grayscale conversion returned empty data.");
+          return;
+      }
+
+      // Standard grayscale array is single channel (brightness per pixel)
+      for (let i = 0; i < gray.length; i++) {
+          totalBrightness += gray[i];
+      }
+      let pixelCount = gray.length; // Each element is a pixel's brightness
+
+      if (pixelCount === 0) {
+          // Conditional Log
+          // if (this.settings.current.enableDebugLogging) console.warn("[Tracker] No pixels processed");
+          return;
+      }
+      avgBrightness = totalBrightness / pixelCount;
+      delta = 0;
+      if (this.prevBrightness !== null && !isNaN(this.prevBrightness)) { // Check prevBrightness is valid
+          delta = Math.abs(avgBrightness - this.prevBrightness);
+      }
+
+      // Store brightness only if it's a valid number
+       if (!isNaN(avgBrightness)) {
+            this.prevBrightness = avgBrightness;
+       } else {
+            this.prevBrightness = null; // Reset if calculation failed
+            // Conditional Log
+            if (this.settings.current.enableDebugLogging) console.warn("[Tracker] avgBrightness calculation resulted in NaN");
+            return;
+       }
+
+        // --- Optional Tracker-Level Debug Log ---
+        // Log brightness/delta calculations infrequently if debug enabled
+        // if (this.settings.current.enableDebugLogging && Math.random() < 0.05) { // Log ~5% of frames
+        //     const brightStr = avgBrightness !== undefined ? avgBrightness.toFixed(1) : 'N/A';
+        //     const deltaStr = delta !== undefined ? delta.toFixed(1) : 'N/A';
+        //     console.log(`[Tracker Calc] B:${brightStr} D:${deltaStr}`);
+        // }
+        // --- End Optional Log ---
+
+  } catch (e) {
+      console.error("[Tracker] Error during brightness calculation:", e);
+      this.prevBrightness = null; // Reset brightness on error
+      return; // Stop processing this frame
+  }
+  // --- End Brightness Calculation ---
+
+
+  // --- NEW Hz Detection Logic ---
+  const now = Date.now();
+  const timeWindow = 1000; // milliseconds (1 second)
+
+  // 1. Prune timestamps older than the time window
+  try {
+      let W = this.flashTimestamps.length;
+      let validStartIndex = -1;
+      for (let i = 0; i < W; i++) {
+          if (now - this.flashTimestamps[i] < timeWindow) {
+              validStartIndex = i;
+              break; // Found the first valid timestamp
+          }
+      }
+      if (validStartIndex > 0) {
+          this.flashTimestamps.splice(0, validStartIndex); // Remove older timestamps efficiently
+      } else if (validStartIndex === -1 && W > 0) {
+          this.flashTimestamps = []; // All are old
+      }
+  } catch (e) {
+       console.error("[Tracker] Error pruning timestamps:", e);
+       this.flashTimestamps = []; // Clear timestamps on error
   }
 
-  if (pixelCount === 0) {
-    console.warn("No pixels processed in FlashTracker");
-    return;
+
+  // Read current thresholds from settings safely
+  const currentThreshold = this.settings.current.flashThreshold || 90;
+  const currentHzThreshold = this.settings.current.flashHzThreshold || 3;
+
+  // 2. Check if current frame's delta exceeds brightness threshold
+  if (!isNaN(delta) && delta > currentThreshold) {
+    // 3. Add timestamp of this "flash event"
+    this.flashTimestamps.push(now);
   }
 
-  let avgBrightness = totalBrightness / pixelCount;
-  let delta = 0;
+  // 4. Check if the number of events in the window meets/exceeds the Hz threshold
+  const flashFrequency = this.flashTimestamps.length; // Events in the last second
+  const isFlashing = flashFrequency >= currentHzThreshold;
 
-  if (this.prevBrightness !== null) {
-    delta = Math.abs(avgBrightness - this.prevBrightness);
+  // --- Optional Tracker-Level Hz Debug Log ---
+  // Log frequency check details infrequently if debug enabled
+  // if (this.settings.current.enableDebugLogging && Math.random() < 0.05) { // Log ~5% of frames
+  //     console.log(`[Tracker Hz Check] Freq (1s): ${flashFrequency}Hz, Threshold: ${currentHzThreshold}Hz, Flashing: ${isFlashing}`);
+  // }
+  // --- End Optional Log ---
+
+   // --- End Hz Detection Logic ---
+
+  // Emit the tracking data, including whether flashing is detected based on Hz
+  try {
+      // Ensure emit function exists
+      if (typeof this.emit === 'function') {
+          this.emit('track', {
+            flashing: isFlashing,
+            brightness: avgBrightness,
+            delta: delta,
+            frequency: flashFrequency // Include current frequency in emitted data
+          });
+      } else {
+           console.error("[Tracker] this.emit is not a function");
+      }
+  } catch (e) {
+       console.error("[Tracker] Error emitting track event:", e);
   }
-
-  // Store current brightness for the next frame's comparison
-  this.prevBrightness = avgBrightness;
-
-  // --- Start of Added/Modified Debug Section ---
-  // Read the current settings values being used for detection
-  // Add safety check in case this.settings or this.settings.current is somehow null/undefined
-  const currentThreshold = this.settings && this.settings.current ? this.settings.current.flashThreshold : 90; // Default fallback
-  const currentTriggerCount = this.settings && this.settings.current ? this.settings.current.flashTriggerCount : 2; // Default fallback
-
-
-  // Debug log: Shows brightness, change (delta), the thresholds being used, and the current flash count
-  console.log(
-    `Brightness: ${avgBrightness.toFixed(1)}, Delta: ${delta.toFixed(1)}, Using Threshold: ${currentThreshold}, Using Count: ${currentTriggerCount}, Current FlashCount: ${this.flashCount.toFixed(1)}`
-  );
-  // --- End of Added/Modified Debug Section ---
-
-  // Check if the brightness change (delta) exceeds the threshold
-  if (delta > currentThreshold) { // Use the variable read from settings
-    this.flashCount++; // Increment flash counter
-  } else if (this.flashCount > 0) {
-    // If delta is below threshold, gradually decrease the flash count (cooldown)
-    this.flashCount -= 0.25; // Correctly uses -= assignment
-    // Ensure flashCount doesn't go below zero
-    if (this.flashCount < 0) {
-        this.flashCount = 0;
-    }
-  }
-
-  // Determine if flashing is currently active based on the count reaching the trigger threshold
-  const isFlashing = this.flashCount >= currentTriggerCount; // Use the variable read from settings
-
-  // Log when a flash sequence is definitively detected
-  if (isFlashing) {
-    // Check if this is the *first* frame it's considered flashing to avoid spamming the log
-    if (!this.wasFlashingLastFrame) { // Requires adding 'this.wasFlashingLastFrame' state if you want this refinement
-        console.log(`🔥 Flash detected! (Delta: ${delta.toFixed(1)}, Count reached: ${this.flashCount.toFixed(1)})`);
-        this.wasFlashingLastFrame = true; // Set state for refinement
-    }
-  } else {
-     if (this.wasFlashingLastFrame) { // Only reset if it *was* flashing
-         this.wasFlashingLastFrame = false; // Reset state for refinement
-     }
-  }
-
-
-  // Emit the tracking data, including whether flashing is detected
-  this.emit('track', {
-    flashing: isFlashing,
-    brightness: avgBrightness,
-    delta: delta
-    // You could add flashCount here too if needed elsewhere:
-    // flashCount: this.flashCount
-  });
 };
