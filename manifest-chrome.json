@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Redout",
+  "version": "1.0",
+  "description": "Detects flashing content and blocks it with customizable settings",
+  "permissions": [
+    "scripting",
+    "storage",
+    "activeTab"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": {
+      "16": "redout.png",
+      "48": "redout.png",
+      "128": "redout.png"
+    },
+    "default_popup": "popup.html"
+  },
+  "icons": {
+    "16": "redout.png",
+    "48": "redout.png",
+    "128": "redout.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "browser-polyfill.js",
+        "tracking-min.js",
+        "settings.js",
+        "tracker.js",
+        "content.js"
+      ],
+      "css": [
+        "overlay.css"
+      ],
+      "run_at": "document_start"
+    }
+  ]
+}
