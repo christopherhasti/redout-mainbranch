@@ -23,26 +23,20 @@ class Settings {
         this.loadSettings();
     }
 
-    // Load settings from storage
-    loadSettings() {
+    // Load settings from storage - NOW ASYNC
+    async loadSettings() {
         try {
-            // Try to load from Chrome storage if available
-            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                chrome.storage.local.get('flashBlockerSettings', (result) => {
-                    const loadedSettings = (result && result.flashBlockerSettings) ? result.flashBlockerSettings : {};
-                    // Merge defaults with loaded settings to ensure all keys exist
-                    this.current = {...this.defaults, ...loadedSettings};
+            // Try to load from browser storage if available
+            if (typeof browser !== 'undefined' && browser.storage && browser.storage.local) {
+                const result = await browser.storage.local.get('flashBlockerSettings');
+                const loadedSettings = (result && result.flashBlockerSettings) ? result.flashBlockerSettings : {};
+                // Merge defaults with loaded settings to ensure all keys exist
+                this.current = {...this.defaults, ...loadedSettings};
 
-                    // Optional cleanup: Remove deprecated keys if they exist
-                    if (this.current.flashTriggerCount !== undefined) {
-                        delete this.current.flashTriggerCount;
-                    }
-
-                    // Call onLoad callback if defined
-                    if (typeof this.onLoad === 'function') {
-                        this.onLoad();
-                    }
-                });
+                // Optional cleanup: Remove deprecated keys if they exist
+                if (this.current.flashTriggerCount !== undefined) {
+                    delete this.current.flashTriggerCount;
+                }
             } else {
                 // Fall back to localStorage for development or testing
                 const savedSettings = localStorage.getItem('flashBlockerSettings');
@@ -60,40 +54,31 @@ class Settings {
                  if (this.current.flashTriggerCount !== undefined) {
                     delete this.current.flashTriggerCount;
                 }
-
-                // Call onLoad callback if defined
-                if (typeof this.onLoad === 'function') {
-                    this.onLoad();
-                }
             }
         } catch (e) {
             console.error("Error loading settings:", e);
             this.current = {...this.defaults}; // Fallback to defaults on error
-            // Call onLoad callback even on error
+        } finally {
+            // Call onLoad callback if defined, regardless of error
             if (typeof this.onLoad === 'function') {
                 this.onLoad();
             }
         }
     }
 
-    // Save settings to storage
-    saveSettings() {
+    // Save settings to storage - NOW ASYNC
+    async saveSettings() {
         try {
              // Clean up old setting before saving (optional but good practice)
             if (this.current.flashTriggerCount !== undefined) {
                 delete this.current.flashTriggerCount;
             }
 
-            // Try to save to Chrome storage if available
-            if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
-                chrome.storage.local.set({flashBlockerSettings: this.current}, () => {
-                    if (chrome.runtime.lastError) {
-                        console.error("Error saving to Chrome storage:", chrome.runtime.lastError.message);
-                    } else {
-                         // Optional: Log save success only if debug is enabled (requires loading settings first, maybe overkill)
-                         // if (this.current.enableDebugLogging) console.log("Settings saved to Chrome storage:", this.current);
-                    }
-                });
+            // Try to save to browser storage if available
+            if (typeof browser !== 'undefined' && browser.storage && browser.storage.local) {
+                await browser.storage.local.set({flashBlockerSettings: this.current});
+                // Optional: Log save success only if debug is enabled
+                // if (this.current.enableDebugLogging) console.log("Settings saved to browser storage:", this.current);
             } else {
                 // Fall back to localStorage for development or testing
                 localStorage.setItem('flashBlockerSettings', JSON.stringify(this.current));
@@ -132,16 +117,4 @@ class Settings {
              return `rgba(0, 50, 100, ${this.defaults.overlayOpacity})`; // Default color on error
         }
     }
-
-    // Optional: Dispatch event (primary update is via chrome.runtime.sendMessage)
-    /*
-    dispatchSettingsChangedEvent() {
-        if (typeof document !== 'undefined') {
-            const event = new CustomEvent('flashBlockerSettingsChanged', {
-                detail: this.current
-            });
-            document.dispatchEvent(event);
-        }
-    }
-    */
 }

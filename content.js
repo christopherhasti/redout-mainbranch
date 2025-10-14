@@ -29,15 +29,15 @@
     */
 
     // Listen for messages from popup or background
-    if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.onMessage) {
-        chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+    if (typeof browser !== 'undefined' && browser.runtime && browser.runtime.onMessage) {
+        browser.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
             // Handle ping request
             if (request && request.action === "ping") {
                  // Conditional Log: Log ping reception only if debug is enabled
                  if (settings.current.enableDebugLogging) console.log("Flashing Blocker: Ping received, sending pong");
-                sendResponse({ status: "pong" });
-                return true; // Keep channel open for async response
+                // In a Promise-based system, returning a Promise is the new "sendResponse"
+                return Promise.resolve({ status: "pong" });
             }
 
             // Handle settings update
@@ -49,13 +49,12 @@
                  // Conditional Log: Log cooldown update only if debug is enabled
                  if (settings.current.enableDebugLogging) console.log("Flashing Blocker: Cooldown updated via message to:", cooldown);
                 updateAllOverlays();
-                sendResponse({ status: "Settings updated" });
-                return true; // Keep channel open
+                // Return a promise to confirm
+                return Promise.resolve({ status: "Settings updated" });
             }
 
-            // If no action matched, indicate it (optional)
-            // sendResponse({ status: "Unknown action" });
-            return false; // No async response needed / close channel if no match
+            // If no action matched, we don't need to return anything.
+            // The polyfill handles the "return true" logic for async responses.
         });
     }
 

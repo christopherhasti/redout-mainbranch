@@ -27,7 +27,7 @@ function initializePopup() {
     checkExtensionStatus();
   };
 
-  // Force load settings
+  // Force load settings (this is now async, but onLoad callback handles timing)
   settings.loadSettings();
 }
 
@@ -153,58 +153,62 @@ function resetSettings() {
   sendSettingsToContentScripts(); // Notify content scripts
 }
 
-// Function to send updated settings to all content scripts
-function sendSettingsToContentScripts() {
+// Function to send updated settings to all content scripts - NOW ASYNC
+async function sendSettingsToContentScripts() {
   // Optional debug log
   // if (settings.current.enableDebugLogging) console.log("Popup: Sending settings to content scripts:", settings.current);
 
-  if (!chrome.tabs) {
-      // console.warn("Popup: Cannot send settings: chrome.tabs API not available."); // Optional debug
+  if (!browser.tabs) {
+      // console.warn("Popup: Cannot send settings: browser.tabs API not available."); // Optional debug
       return;
   }
-  chrome.tabs.query({}, (tabs) => {
-    if (chrome.runtime.lastError) {
-        console.error("Popup: Error querying tabs:", chrome.runtime.lastError.message);
-        return;
-    }
+
+  try {
+    const tabs = await browser.tabs.query({});
     tabs.forEach(tab => {
       // Avoid sending messages to internal/invalid tabs
-      if (tab.id && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('about:')) {
+      if (tab.id && tab.url && !tab.url.startsWith('chrome://') && !tab.url.startsWith('about:') && !tab.url.startsWith('moz-extension://')) {
           try {
-              chrome.tabs.sendMessage(tab.id, {
+              browser.tabs.sendMessage(tab.id, {
                   action: "updateSettings",
                   settings: settings.current // Send the current settings object
-              }, (response) => {
-                  // Optional: Handle response or errors (like content script not injected)
-                  if (chrome.runtime.lastError) {
-                      // This is expected if the content script isn't on the page
-                      // if (settings.current.enableDebugLogging) console.log(`Popup: Tab ${tab.id} likely inactive: ${chrome.runtime.lastError.message}`);
-                  } else {
-                       // if (settings.current.enableDebugLogging) console.log(`Popup: Settings sent to tab ${tab.id}, response:`, response);
-                  }
+              })
+              .then((response) => {
+                  // Optional: Handle response
+                  // if (settings.current.enableDebugLogging) console.log(`Popup: Settings sent to tab ${tab.id}, response:`, response);
+              })
+              .catch((error) => {
+                  // This is expected if the content script isn't on the page
+                  // if (settings.current.enableDebugLogging) console.log(`Popup: Tab ${tab.id} likely inactive: ${error.message}`);
               });
           } catch (e) {
               console.error(`Popup: Sync error sending settings to tab ${tab.id}:`, e.message);
           }
       }
     });
-  });
+  } catch (error) {
+    console.error("Popup: Error querying tabs:", error.message);
+  }
 }
 
 
-// Function to check if the extension is active on the current tab
-function checkExtensionStatus() {
-    if (!chrome.tabs) {
-        // console.error("Popup: chrome.tabs API not available."); // Optional debug
+// Function to check if the extension is active on the current tab - NOW ASYNC
+async function checkExtensionStatus() {
+    if (!browser.tabs) {
+        // console.error("Popup: browser.tabs API not available."); // Optional debug
         updateStatusDisplay(false);
         return;
     }
-  chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-    if (chrome.runtime.lastError) {
-        console.error("Popup: Error querying active tab:", chrome.runtime.lastError.message);
+
+    let tabs;
+    try {
+        tabs = await browser.tabs.query({active: true, currentWindow: true});
+    } catch (error) {
+        console.error("Popup: Error querying active tab:", error.message);
         updateStatusDisplay(false);
         return;
     }
+   
     if (!tabs || tabs.length === 0 || !tabs[0].id) {
         // console.warn("Popup: Could not get active tab ID."); // Optional debug
          updateStatusDisplay(false); // Can't check status without an ID
@@ -215,30 +219,26 @@ function checkExtensionStatus() {
     const activeTabUrl = tabs[0].url;
 
      // Don't ping internal pages
-     if (!activeTabUrl || activeTabUrl.startsWith('chrome://') || activeTabUrl.startsWith('about:')) {
+     if (!activeTabUrl || activeTabUrl.startsWith('chrome://') || activeTabUrl.startsWith('about:') || activeTabUrl.startsWith('moz-extension://')) {
          updateStatusDisplay(false); // Treat internal pages as inactive for protection
          return;
      }
 
     // Try to ping the content script
     try {
-      chrome.tabs.sendMessage(activeTabId, {action: "ping"}, (response) => {
-        if (chrome.runtime.lastError) {
-          // Content script not loaded or responding
-          updateStatusDisplay(false);
-        } else if (response && response.status === "pong") {
-          // Content script is active
-          updateStatusDisplay(true);
-        } else {
-             // console.warn(`Popup: Unexpected ping response from tab ${activeTabId}:`, response); // Optional debug
-             updateStatusDisplay(false);
-        }
-      });
+      const response = await browser.tabs.sendMessage(activeTabId, {action: "ping"});
+      if (response && response.status === "pong") {
+        // Content script is active
+        updateStatusDisplay(true);
+      } else {
+           // console.warn(`Popup: Unexpected ping response from tab ${activeTabId}:`, response); // Optional debug
+           updateStatusDisplay(false);
+      }
     } catch (e) {
-      console.error(`Popup: Error sending ping to tab ${activeTabId}:`, e.message);
+      // This catch block handles errors, e.g., content script not loaded
+      // console.error(`Popup: Error sending ping to tab ${activeTabId}:`, e.message);
       updateStatusDisplay(false);
     }
-  });
 }
 
 // Function to update the status display

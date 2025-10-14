@@ -1,8 +1,8 @@
-chrome.runtime.onInstalled.addListener((details) => {
+browser.runtime.onInstalled.addListener((details) => {
   console.log(`Flashing Image Blocker ${details.reason}`);
   // Potential place for onboarding or welcome page logic
   // if (details.reason === "install") {
-  //   chrome.tabs.create({ url: "welcome.html" });
+  //   browser.tabs.create({ url: "welcome.html" });
   // }
 });
 

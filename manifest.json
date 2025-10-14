@@ -9,8 +9,7 @@
     "activeTab"
   ],
   "background": {
-    "service_worker": "background.js",
-    "scripts": ["background.js"]
+    "service_worker": "background.js"
   },
   "action": {
     "default_icon": {
@@ -31,6 +30,7 @@
         "<all_urls>"
       ],
       "js": [
+        "browser-polyfill.js",
         "tracking-min.js",
         "settings.js",
         "tracker.js",
