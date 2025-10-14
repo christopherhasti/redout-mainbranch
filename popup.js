@@ -56,7 +56,7 @@ function loadSettingsIntoUI() {
 
 function setupEventListeners() {
   // Appearance settings
-  document.getElementById('overlayColor').addEventListener('change', updateSetting);
+  document.getElementById('overlayColor').addEventListener('input', updateSetting);
   document.getElementById('overlayOpacity').addEventListener('input', updateRangeSetting);
   document.getElementById('showWarningText').addEventListener('change', updateSetting);
   document.getElementById('warningText').addEventListener('change', updateSetting); // Use 'change' or 'input'

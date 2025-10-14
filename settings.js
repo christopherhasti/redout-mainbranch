@@ -10,7 +10,7 @@ class Settings {
             flashHzThreshold: 3,        // Max flash frequency (Hz)
             showWarningText: true,
             warningText: 'Flashing Blocked',
-            enableDebugLogging: false // <-- ADDED: New setting for debug logs
+            enableDebugLogging: false
         };
 
         // Initialize with defaults
@@ -19,8 +19,7 @@ class Settings {
         // Callback to execute when settings are loaded
         this.onLoad = null;
 
-        // Load settings from storage
-        this.loadSettings();
+        // DO NOT call loadSettings() here anymore
     }
 
     // Load settings from storage - NOW ASYNC
