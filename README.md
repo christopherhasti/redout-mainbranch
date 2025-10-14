@@ -83,18 +83,31 @@ This approach helps mitigate the risks associated with flashing content, creatin
 ## 📁 Project Structure
 
 redout/
+
 ├── manifest.json         # Extension configuration (V3)
+
 ├── background.js         # Service worker (V3) / Background script
+
 ├── popup.html            # Popup UI structure
+
 ├── popup.js              # Popup UI logic and event handling
+
 ├── styles.css            # CSS for the popup UI
+
 ├── settings.js           # Class for managing settings & storage
+
 ├── content.js            # Content script: finds videos, applies overlay
+
 ├── tracker.js            # Flash detection logic (using tracking.js)
+
 ├── overlay.css           # CSS only for the flash overlay
+
 ├── tracking-min.js       # REQUIRED: tracking.js library
+
 ├── browser-polyfill.js   # REQUIRED: Cross-browser polyfill
+
 ├── redout.png            # Extension icon
+
 └── README.md             # This file
 
 ## 📄 License
