@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Redout</title>
+  <style>
+    body {
+      width: 320px;
+      font-family: Arial, sans-serif;
+      padding: 15px;
+      margin: 0;
+      color: #333;
+    }
+
+    h1 {
+      font-size: 18px;
+      margin-top: 0;
+      color: #003264;
+      margin-bottom: 15px;
+    }
+
+    .status {
+      margin-bottom: 15px;
+      padding: 8px;
+      background-color: #e6f7ff;
+      border: 1px solid #91d5ff;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .status.enabled {
+      background-color: #f6ffed;
+      border-color: #b7eb8f;
+    }
+
+    .setting-group {
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 15px;
+    }
+
+    .setting-group:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .setting-item {
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input[type="color"] {
+      width: 100%;
+      height: 30px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      cursor: pointer;
+      box-sizing: border-box;
+    }
+     input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0;
+    }
+    input[type="color"]::-webkit-color-swatch {
+        border: none;
+        border-radius: 3px;
+    }
+     input[type="color"]::-moz-color-swatch {
+        border: none;
+        border-radius: 3px;
+    }
+
+
+    input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    input[type="number"],
+    input[type="text"] {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      font-weight: normal;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .range-label-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+
+    .range-value {
+      font-size: 14px;
+      color: #555;
+      background-color: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      min-width: 30px;
+      text-align: center;
+    }
+
+    .hint {
+        font-size: 12px;
+        color: #666;
+        margin-top: 4px;
+    }
+
+    .btn-reset {
+      display: block;
+      width: 100%;
+      padding: 8px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-reset:hover {
+      background-color: #d32f2f;
+    }
+
+    .footer {
+      margin-top: 15px;
+      font-size: 12px;
+      color: #999;
+      text-align: center;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .tab {
+      padding: 8px 15px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      margin-bottom: -1px;
+      font-size: 14px;
+      color: #555;
+      transition: color 0.2s ease, border-bottom-color 0.2s ease;
+    }
+     .tab:hover {
+         color: #003264;
+     }
+
+    .tab.active {
+      border-bottom-color: #003264;
+      font-weight: bold;
+      color: #003264;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <h1>Redout</h1>
+
+  <div class="status enabled">
+    Status: <strong>Checking...</strong>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="appearance">Appearance</div>
+    <div class="tab" data-tab="detection">Detection</div>
+    <div class="tab" data-tab="advanced">Advanced</div>
+  </div>
+
+  <div class="tab-content active" id="appearance">
+    <div class="setting-group">
+      <div class="setting-item">
+        <label for="overlayColor">Overlay Color</label>
+        <input type="color" id="overlayColor" value="#003264">
+      </div>
+
+      <div class="setting-item">
+        <div class="range-label-container">
+            <label for="overlayOpacity">Overlay Opacity</label>
+            <span class="range-value" id="opacityValue">0.95</span>
+        </div>
+        <input type="range" id="overlayOpacity" min="0.5" max="1" step="0.05" value="0.95">
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-item">
+        <label class="checkbox-label">
+          <input type="checkbox" id="showWarningText" checked>
+          Show Warning Text
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <label for="warningText">Warning Message</label>
+        <input type="text" id="warningText" value="Flashing Blocked">
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-content" id="detection">
+    <div class="setting-group">
+      <div class="setting-item">
+        <div class="range-label-container">
+            <label for="flashThreshold">Flash Sensitivity</label>
+            <span class="range-value" id="thresholdValue">90</span>
+        </div>
+        <input type="range" id="flashThreshold" min="30" max="150" step="5" value="90">
+        <div class="hint">
+          Lower value = more sensitive to brightness changes.
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <label for="flashHzThreshold">Max Flash Frequency (Hz)</label>
+        <input type="number" id="flashHzThreshold" min="1" max="60" step="1" value="3"> <div class="hint">
+          Block content flashing faster than this (times/sec). Common trigger: 3-30 Hz.
+        </div>
+      </div>
+      </div>
+  </div>
+
+  <div class="tab-content" id="advanced">
+    <div class="setting-group">
+      <div class="setting-item">
+        <label for="cooldownTime">Hide Delay (ms)</label>
+        <input type="number" id="cooldownTime" min="100" max="5000" step="100" value="500">
+        <div class="hint">
+          Time before hiding overlay after flashing stops.
+        </div>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="setting-item">
+         <label class="checkbox-label">
+           <input type="checkbox" id="enableDebugLogging">
+           Enable Debug Logging
+         </label>
+         <div class="hint">Show detailed tracking info in the browser console (requires page reload for some logs).</div>
+      </div>
+    </div>
+    <button id="resetButton" class="btn-reset">Reset to Defaults</button>
+  </div>
+
+  <div class="footer">
+    Changes apply immediately to active tabs
+  </div>
+
+  <script src="browser-polyfill.js"></script>
+  
+  <script src="settings.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

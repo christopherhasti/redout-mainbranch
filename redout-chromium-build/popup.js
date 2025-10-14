@@ -59,7 +59,7 @@ function setupEventListeners() {
   document.getElementById('overlayColor').addEventListener('input', updateSetting);
   document.getElementById('overlayOpacity').addEventListener('input', updateRangeSetting);
   document.getElementById('showWarningText').addEventListener('change', updateSetting);
-  document.getElementById('warningText').addEventListener('change', updateSetting); // Use 'change' or 'input'
+  document.getElementById('warningText').addEventListener('change', updateSetting);
 
   // Detection settings
   document.getElementById('flashThreshold').addEventListener('input', updateRangeSetting);
@@ -67,8 +67,8 @@ function setupEventListeners() {
 
   // Advanced settings
   document.getElementById('cooldownTime').addEventListener('change', updateSetting);
-  document.getElementById('enableDebugLogging').addEventListener('change', updateSetting); // <-- ADDED
-
+  document.getElementById('enableDebugLogging').addEventListener('change', updateSetting);
+  
   // Reset button
   document.getElementById('resetButton').addEventListener('click', resetSettings);
 }
