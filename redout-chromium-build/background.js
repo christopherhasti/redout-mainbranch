@@ -1,3 +1,9 @@
+try {
+  importScripts('browser-polyfill.js');
+} catch (e) {
+  console.error(e);
+}
+
 browser.runtime.onInstalled.addListener((details) => {
   console.log(`Flashing Image Blocker ${details.reason}`);
   // Potential place for onboarding or welcome page logic

@@ -61,7 +61,7 @@ FlashTracker.prototype.track = function(pixels, width, height) {
           return;
       }
       // Use tracking.js's fast grayscale (true flag) if available
-      let gray = tracking.Image.grayscale(pixels, width, height, true);
+      let gray = tracking.Image.grayscale(pixels, width, height, false);
       let totalBrightness = 0;
 
       // Check if grayscale conversion returned valid data

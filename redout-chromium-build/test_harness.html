@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redout FlashTracker Test Harness</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .pass { color: green; }
+        .fail { color: red; }
+        .log { white-space: pre-wrap; margin-top: 10px; }
+    </style>
+    <!-- Dependencies -->
+    <script src="tracking-min.js"></script>
+    <script src="settings.js"></script>
+    <script src="tracker.js"></script>
+</head>
+<body>
+    <h1>Redout FlashTracker Test Harness</h1>
+    <div id="results">Running tests...</div>
+
+    <script>
+        const resultsDiv = document.getElementById('results');
+        const logs = [];
+        
+        function log(msg) {
+            console.log(msg);
+            logs.push(msg);
+        }
+
+        function assert(condition, message) {
+            if (condition) {
+                log("PASS: " + message);
+                return true;
+            } else {
+                log("FAIL: " + message);
+                return false;
+            }
+        }
+
+        async function runTests() {
+            resultsDiv.innerHTML = "Running...";
+            
+            try {
+                // Test 1: Initialization
+                log("--- Test 1: Initialization ---");
+                const settings = new Settings();
+                // Mock settings.current immediately without loading (async load might be too slow for sync script)
+                settings.current = { ...settings.defaults, flashHzThreshold: 3, flashThreshold: 50, enableDebugLogging: true };
+                
+                const tracker = new FlashTracker(settings);
+                assert(tracker instanceof tracking.Tracker, "Tracker should be instance of tracking.Tracker");
+                assert(tracker.settings.current.flashHzThreshold === 3, "Settings should be correctly passed");
+
+                // Test 2: Detection Logic (Mocking pixels)
+                log("\n--- Test 2: Detection Logic ---");
+                
+                // Mock emit function
+                let lastEvent = null;
+                tracker.emit = (event, data) => {
+                    lastEvent = data;
+                };
+
+                // Helper to create a solid color frame
+                function createFrame(brightness, width=10, height=10) {
+                    const pixels = new Uint8ClampedArray(width * height * 4);
+                    for (let i = 0; i < pixels.length; i += 4) {
+                        pixels[i] = brightness;     // R
+                        pixels[i+1] = brightness;   // G
+                        pixels[i+2] = brightness;   // B
+                        pixels[i+3] = 255;          // A
+                    }
+                    return pixels;
+                }
+
+                const width = 10;
+                const height = 10;
+
+                // Frame 1: Black (0)
+                tracker.track(createFrame(0), width, height);
+                assert(lastEvent.brightness === 0, "Frame 1 brightness should be 0");
+                assert(!lastEvent.flashing, "Frame 1 should not flash");
+                
+                // Frame 2: White (255) -> Delta 255 -> Flash Event 1
+                tracker.track(createFrame(255), width, height);
+                assert(lastEvent.delta === 255, "Frame 2 delta should be 255");
+                assert(tracker.flashTimestamps.length === 1, "Should have 1 flash timestamp");
+                
+                // Frame 3: Black (0) -> Delta 255 -> Flash Event 2
+                tracker.track(createFrame(0), width, height);
+                assert(tracker.flashTimestamps.length === 2, "Should have 2 flash timestamps");
+
+                // Frame 4: White (255) -> Delta 255 -> Flash Event 3 -> TRIGGER (Hz >= 3)
+                tracker.track(createFrame(255), width, height);
+                assert(tracker.flashTimestamps.length === 3, "Should have 3 flash timestamps");
+                assert(lastEvent.flashing === true, "Should trigger flashing state (3Hz)");
+
+                // Test 3: Cooldown/Expiry
+                log("\n--- Test 3: Timestamp Expiry ---");
+                // Manually age the timestamps
+                tracker.flashTimestamps = tracker.flashTimestamps.map(t => t - 1500); // Move back 1.5s
+                
+                // Frame 5: No change
+                tracker.track(createFrame(255), width, height);
+                assert(tracker.flashTimestamps.length === 0, "Old timestamps should be pruned");
+                assert(lastEvent.flashing === false, "Should stop flashing after pruning");
+
+                // Summary
+                const failures = logs.filter(l => l.startsWith("FAIL"));
+                if (failures.length === 0) {
+                    resultsDiv.innerHTML = '<span class="pass">ALL TESTS PASSED</span>';
+                } else {
+                    resultsDiv.innerHTML = '<span class="fail">' + failures.length + ' TESTS FAILED</span>';
+                }
+                
+                const logDiv = document.createElement('div');
+                logDiv.className = 'log';
+                logDiv.innerText = logs.join('\n');
+                document.body.appendChild(logDiv);
+
+            } catch (e) {
+                log("ERROR: " + e.message);
+                log(e.stack);
+                resultsDiv.innerHTML = '<span class="fail">EXCEPTION THROWN</span>';
+            }
+        }
+
+        // Wait for tracking.js to initialize if needed, though script tags match blocked order
+        window.onload = runTests;
+
+    </script>
+</body>
+</html>

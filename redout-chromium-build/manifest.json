@@ -13,16 +13,16 @@
   },
   "action": {
     "default_icon": {
-      "16": "redout.png",
-      "48": "redout.png",
-      "128": "redout.png"
+      "16": "icon16.png",
+      "48": "icon48.png",
+      "128": "icon128.png"
     },
     "default_popup": "popup.html"
   },
   "icons": {
-    "16": "redout.png",
-    "48": "redout.png",
-    "128": "redout.png"
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
   },
   "content_scripts": [
     {

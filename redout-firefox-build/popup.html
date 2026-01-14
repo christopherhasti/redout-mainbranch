@@ -1,195 +1,340 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Redout</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+    :root {
+      --bg-color: #0f0f0f;
+      --card-bg: #1a1a1a;
+      --accent-color: #ff4757;
+      --accent-hover: #ff6b81;
+      --text-main: #ffffff;
+      --text-muted: #a0a0a0;
+      --border-color: #333;
+      --input-bg: #2a2a2a;
+    }
+
     body {
-      width: 320px;
-      font-family: Arial, sans-serif;
-      padding: 15px;
+      width: 340px;
+      font-family: 'Inter', sans-serif;
+      padding: 0;
       margin: 0;
-      color: #333;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+    }
+
+    /* Header */
+    header {
+      padding: 20px;
+      background-color: var(--card-bg);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header img {
+      width: 24px;
+      height: 24px;
     }
 
     h1 {
       font-size: 18px;
-      margin-top: 0;
-      color: #003264;
-      margin-bottom: 15px;
+      margin: 0;
+      font-weight: 600;
+      letter-spacing: -0.5px;
     }
 
-    .status {
-      margin-bottom: 15px;
-      padding: 8px;
-      background-color: #e6f7ff;
-      border: 1px solid #91d5ff;
-      border-radius: 4px;
-      font-size: 14px;
-    }
-
-    .status.enabled {
-      background-color: #f6ffed;
-      border-color: #b7eb8f;
-    }
-
-    .setting-group {
-      margin-bottom: 15px;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 15px;
-    }
-
-    .setting-group:last-child {
-      border-bottom: none;
-      margin-bottom: 0;
-    }
-
-    .setting-item {
-      margin-bottom: 10px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: bold;
-      font-size: 14px;
-    }
-
-    input[type="color"] {
-      width: 100%;
-      height: 30px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      cursor: pointer;
-      box-sizing: border-box;
-    }
-     input[type="color"]::-webkit-color-swatch-wrapper {
-        padding: 0;
-    }
-    input[type="color"]::-webkit-color-swatch {
-        border: none;
-        border-radius: 3px;
-    }
-     input[type="color"]::-moz-color-swatch {
-        border: none;
-        border-radius: 3px;
-    }
-
-
-    input[type="range"] {
-      width: 100%;
-      cursor: pointer;
-    }
-
-    input[type="number"],
-    input[type="text"] {
-      width: 100%;
-      padding: 6px 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-
-    input[type="checkbox"] {
-      margin-right: 8px;
-      vertical-align: middle;
-    }
-
-    .checkbox-label {
+    /* Status Bar */
+    .status-bar {
+      padding: 12px 20px;
+      background-color: rgba(255, 71, 87, 0.1);
+      border-bottom: 1px solid rgba(255, 71, 87, 0.2);
+      font-size: 13px;
       display: flex;
       align-items: center;
-      font-weight: normal;
-      font-size: 14px;
-      cursor: pointer;
+      gap: 8px;
     }
 
-    .range-label-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 5px;
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--accent-color);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent-color);
     }
 
-    .range-value {
-      font-size: 14px;
-      color: #555;
-      background-color: #f0f0f0;
-      padding: 2px 6px;
-      border-radius: 3px;
-      min-width: 30px;
-      text-align: center;
+    .status-text strong {
+      color: var(--accent-color);
     }
 
-    .hint {
-        font-size: 12px;
-        color: #666;
-        margin-top: 4px;
-    }
-
-    .btn-reset {
-      display: block;
-      width: 100%;
-      padding: 8px;
-      background-color: #f44336;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: background-color 0.2s ease;
-    }
-
-    .btn-reset:hover {
-      background-color: #d32f2f;
-    }
-
-    .footer {
-      margin-top: 15px;
-      font-size: 12px;
-      color: #999;
-      text-align: center;
-    }
-
+    /* Tabs */
     .tabs {
       display: flex;
-      margin-bottom: 15px;
-      border-bottom: 1px solid #ddd;
+      background-color: var(--card-bg);
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border-color);
     }
 
     .tab {
-      padding: 8px 15px;
+      padding: 12px 0;
+      margin-right: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
       cursor: pointer;
-      border-bottom: 3px solid transparent;
-      margin-bottom: -1px;
-      font-size: 14px;
-      color: #555;
-      transition: color 0.2s ease, border-bottom-color 0.2s ease;
+      position: relative;
+      transition: color 0.2s;
     }
-     .tab:hover {
-         color: #003264;
-     }
+
+    .tab:hover {
+      color: var(--text-main);
+    }
 
     .tab.active {
-      border-bottom-color: #003264;
-      font-weight: bold;
-      color: #003264;
+      color: var(--accent-color);
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background-color: var(--accent-color);
+    }
+
+    /* Content Area */
+    .content {
+      padding: 20px;
     }
 
     .tab-content {
       display: none;
+      animation: fadeIn 0.3s ease;
     }
 
     .tab-content.active {
       display: block;
     }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Controls */
+    .control-group {
+      margin-bottom: 24px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .row-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .value-badge {
+      background-color: var(--input-bg);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 12px;
+      color: var(--text-main);
+      font-family: monospace;
+    }
+
+    /* Inputs */
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      background-color: var(--input-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      box-sizing: border-box;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="number"]:focus {
+      border-color: var(--accent-color);
+    }
+
+    /* Range Slider */
+    input[type=range] {
+      -webkit-appearance: none;
+      width: 100%;
+      background: transparent;
+    }
+
+    /* Webkit (Chrome, Edge, Safari) */
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 16px;
+      width: 16px;
+      border-radius: 50%;
+      background: var(--accent-color);
+      cursor: pointer;
+      margin-top: -6px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: var(--input-bg);
+      border-radius: 2px;
+    }
+
+    /* Firefox */
+    input[type=range]::-moz-range-thumb {
+      height: 16px;
+      width: 16px;
+      border: none;
+      border-radius: 50%;
+      background: var(--accent-color);
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    input[type=range]::-moz-range-track {
+      width: 100%;
+      height: 4px;
+      cursor: pointer;
+      background: var(--input-bg);
+      border-radius: 2px;
+    }
+
+    /* Checkbox */
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 8px 0;
+    }
+
+    .checkbox-row input {
+      margin-right: 12px;
+      accent-color: var(--accent-color);
+      width: 16px;
+      height: 16px;
+    }
+
+    .checkbox-text {
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .hint {
+      font-size: 11px;
+      color: #666;
+      margin-top: 6px;
+      line-height: 1.4;
+    }
+
+    /* Buttons */
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-danger {
+      background-color: rgba(255, 71, 87, 0.1);
+      color: var(--accent-color);
+    }
+
+    .btn-danger:hover {
+      background-color: rgba(255, 71, 87, 0.2);
+    }
+
+    /* Firefox Specific Pickers */
+    .picker-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    #colorPreview {
+      width: 36px;
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+    }
+
+    .presets-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .color-preset {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid var(--card-bg);
+      /* Ring effect */
+      outline: 1px solid var(--border-color);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .color-preset:hover {
+      transform: scale(1.1);
+      outline-color: var(--text-main);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 11px;
+      color: #555;
+      border-top: 1px solid var(--border-color);
+      background-color: var(--card-bg);
+    }
   </style>
 </head>
-<body>
-  <h1>Redout</h1>
 
-  <div class="status enabled">
-    Status: <strong>Checking...</strong>
+<body>
+
+  <header>
+    <img src="redout.png" alt="Logo">
+    <h1>Redout</h1>
+  </header>
+
+  <div class="status-bar status">
+    <div class="status-dot"></div>
+    <span class="status-text">Status: <strong>Active</strong></span>
   </div>
 
   <div class="tabs">
@@ -198,89 +343,94 @@
     <div class="tab" data-tab="advanced">Advanced</div>
   </div>
 
-  <div class="tab-content active" id="appearance">
-    <div class="setting-group">
-      <div class="setting-item">
-        <label for="overlayColor">Overlay Color</label>
-        <input type="color" id="overlayColor" value="#003264">
+  <div class="content">
+
+    <!-- APPEARANCE TAB -->
+    <div class="tab-content active" id="appearance">
+      <div class="control-group">
+        <label for="overlayColorHex">Overlay Color (Hex)</label>
+        <div class="picker-row">
+          <input type="text" id="overlayColorHex" value="#003264" maxlength="7" style="flex-grow: 1;">
+          <div id="colorPreview" style="background-color: #003264;"></div>
+        </div>
+        <div class="presets-row" id="colorPresets">
+          <button class="color-preset" style="background-color: #003264;" data-color="#003264"></button>
+          <button class="color-preset" style="background-color: #1a1a1a;" data-color="#1a1a1a"></button>
+          <button class="color-preset" style="background-color: #800000;" data-color="#800000"></button>
+          <button class="color-preset" style="background-color: #006400;" data-color="#006400"></button>
+          <button class="color-preset" style="background-color: #4b0082;" data-color="#4b0082"></button>
+          <button class="color-preset" style="background-color: #000000;" data-color="#000000"></button>
+          <button class="color-preset" style="background-color: #ff4757;" data-color="#ff4757"></button>
+        </div>
       </div>
 
-      <div class="setting-item">
-        <div class="range-label-container">
-            <label for="overlayOpacity">Overlay Opacity</label>
-            <span class="range-value" id="opacityValue">0.95</span>
+      <div class="control-group">
+        <div class="row-label">
+          <label>Overlay Opacity</label>
+          <span class="value-badge" id="opacityValue">0.95</span>
         </div>
         <input type="range" id="overlayOpacity" min="0.5" max="1" step="0.05" value="0.95">
       </div>
-    </div>
 
-    <div class="setting-group">
-      <div class="setting-item">
-        <label class="checkbox-label">
+      <div class="control-group">
+        <label class="checkbox-row">
           <input type="checkbox" id="showWarningText" checked>
-          Show Warning Text
+          <span class="checkbox-text">Show Warning Text</span>
         </label>
       </div>
 
-      <div class="setting-item">
-        <label for="warningText">Warning Message</label>
+      <div class="control-group">
+        <label>Warning Message</label>
         <input type="text" id="warningText" value="Flashing Blocked">
       </div>
     </div>
-  </div>
 
-  <div class="tab-content" id="detection">
-    <div class="setting-group">
-      <div class="setting-item">
-        <div class="range-label-container">
-            <label for="flashThreshold">Flash Sensitivity</label>
-            <span class="range-value" id="thresholdValue">90</span>
+    <!-- DETECTION TAB -->
+    <div class="tab-content" id="detection">
+      <div class="control-group">
+        <div class="row-label">
+          <label>Flash Sensitivity</label>
+          <span class="value-badge" id="thresholdValue">90</span>
         </div>
         <input type="range" id="flashThreshold" min="30" max="150" step="5" value="90">
-        <div class="hint">
-          Lower value = more sensitive to brightness changes.
-        </div>
+        <div class="hint">Lower value = more sensitive to light changes.</div>
       </div>
 
-      <div class="setting-item">
-        <label for="flashHzThreshold">Max Flash Frequency (Hz)</label>
-        <input type="number" id="flashHzThreshold" min="1" max="60" step="1" value="3"> <div class="hint">
-          Block content flashing faster than this (times/sec). Common trigger: 3-30 Hz.
-        </div>
+      <div class="control-group">
+        <label>Max Flash Frequency (Hz)</label>
+        <input type="number" id="flashHzThreshold" min="1" max="60" step="1" value="3">
+        <div class="hint">Block content flashing faster than this rate. (Default: 3Hz)</div>
       </div>
-      </div>
-  </div>
+    </div>
 
-  <div class="tab-content" id="advanced">
-    <div class="setting-group">
-      <div class="setting-item">
-        <label for="cooldownTime">Hide Delay (ms)</label>
+    <!-- ADVANCED TAB -->
+    <div class="tab-content" id="advanced">
+      <div class="control-group">
+        <label>Hide Delay (ms)</label>
         <input type="number" id="cooldownTime" min="100" max="5000" step="100" value="500">
-        <div class="hint">
-          Time before hiding overlay after flashing stops.
-        </div>
+        <div class="hint">How long to keep the overlay after flashing stops.</div>
       </div>
+
+      <div class="control-group">
+        <label class="checkbox-row">
+          <input type="checkbox" id="enableDebugLogging">
+          <span class="checkbox-text">Enable Debug Logging</span>
+        </label>
+        <div class="hint">Print detailed tracking info to the developer console.</div>
+      </div>
+
+      <button id="resetButton" class="btn btn-danger">Reset to Defaults</button>
     </div>
 
-    <div class="setting-group">
-      <div class="setting-item">
-         <label class="checkbox-label">
-           <input type="checkbox" id="enableDebugLogging">
-           Enable Debug Logging
-         </label>
-         <div class="hint">Show detailed tracking info in the browser console (requires page reload for some logs).</div>
-      </div>
-    </div>
-    <button id="resetButton" class="btn-reset">Reset to Defaults</button>
   </div>
 
-  <div class="footer">
-    Changes apply immediately to active tabs
-  </div>
+  <footer>
+    Changes apply immediately to active tabs.
+  </footer>
 
   <script src="browser-polyfill.js"></script>
-  
   <script src="settings.js"></script>
   <script src="popup.js"></script>
 </body>
+
 </html>
